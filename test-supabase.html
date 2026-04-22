@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Connection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test de Conexión Supabase</h1>
+    <button onclick="testConnection()">Probar Conexión</button>
+    <pre id="result"></pre>
+
+    <script>
+        const SUPABASE_URL = 'https://udkfaxdknokehkwwrdkv.supabase.co'
+        const SUPABASE_ANON_KEY = 'PEGAR_TU_ANON_KEY_AQUI'
+        
+        async function testConnection() {
+            const result = document.getElementById('result')
+            result.textContent = 'Probando conexión...\n'
+            
+            try {
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+                
+                // Test 1: Verificar conexión básica
+                result.textContent += '✓ Cliente Supabase creado\n'
+                
+                // Test 2: Intentar consultar las tablas
+                const { data: stores, error: storesError } = await supabase
+                    .from('stores')
+                    .select('count')
+                    .limit(1)
+                
+                if (storesError) {
+                    result.textContent += `✗ Error al consultar stores: ${storesError.message}\n`
+                } else {
+                    result.textContent += '✓ Tabla stores existe y es accesible\n'
+                }
+                
+                // Test 3: Verificar tabla sales
+                const { data: sales, error: salesError } = await supabase
+                    .from('sales')
+                    .select('count')
+                    .limit(1)
+                
+                if (salesError) {
+                    result.textContent += `✗ Error al consultar sales: ${salesError.message}\n`
+                } else {
+                    result.textContent += '✓ Tabla sales existe y es accesible\n'
+                }
+                
+                // Test 4: Verificar storage
+                const { data: buckets, error: bucketsError } = await supabase
+                    .storage
+                    .listBuckets()
+                
+                if (bucketsError) {
+                    result.textContent += `✗ Error al listar buckets: ${bucketsError.message}\n`
+                } else {
+                    result.textContent += `✓ Storage accesible. Buckets: ${buckets.map(b => b.name).join(', ')}\n`
+                }
+                
+                result.textContent += '\n✅ Conexión exitosa!'
+                
+            } catch (error) {
+                result.textContent += `\n❌ ERROR: ${error.message}\n`
+            }
+        }
+    </script>
+</body>
+</html>
